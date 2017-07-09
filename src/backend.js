@@ -90,8 +90,13 @@ StreamBackend.prototype = {
 
       for(let id of refs) {
         if(! _.findWhere(objectsForRefs, {_id: id})) {
-          throw new Meteor.Error('not-enrichable', `Collection with name ${modelRef} does not contain item with id ${id}
-hint: are you retrieving objects before the (feed) subscription is ready`);
+          console.log(`Could not find activity for ${modelRef}:${id}. Removing from getStream.`);
+          for (var index in references.users) {
+            Stream.feedManager.getUserFeed(references.users[index]).removeActivity({foreignId: id});
+            Stream.feedManager.getNewsFeeds(references.users[index])['flat'].removeActivity({foreignId: id});
+            Stream.feedManager.getNewsFeeds(references.users[index])['aggregated'].removeActivity({foreignId: id});
+          }
+          return null;
         }
       }
 
@@ -109,6 +114,9 @@ hint: are you retrieving objects before the (feed) subscription is ready`);
     var objects = this.retreiveObjects(references);
 
     self.iterActivityFieldsWithReferences(activities, function(args) {
+      if (!objects) {
+        return null;
+      }
       if (objects[args.modelRef] && objects[args.modelRef][args.instanceRef] && args.field !== 'foreign_id') {
         args.activity[args.field] = objects[args.modelRef][args.instanceRef];
       }
@@ -123,6 +131,9 @@ hint: are you retrieving objects before the (feed) subscription is ready`);
     var objects = this.retreiveObjects(references);
 
     self.iterActivityFieldsWithReferences([activity], function(args) {
+      if (!objects) {
+        return null;
+      }
       if (objects[args.modelRef] && objects[args.modelRef][args.instanceRef] && args.field !== 'foreign_id') {
         args.activity[args.field] = objects[args.modelRef][args.instanceRef];
       }
