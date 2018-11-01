@@ -75,7 +75,7 @@ StreamBackend.prototype = {
     return modelClass.find({_id: {$in: objectsIds}}).fetch();
   },
 
-  retreiveObjects: function(references) {
+  retrieveObjects: function(references) {
     var objects = {};
     var self = this;
 
@@ -111,7 +111,7 @@ StreamBackend.prototype = {
   enrichActivities: function(activities) {
     var self = this;
     var references = this.collectReferences(activities);
-    var objects = this.retreiveObjects(references);
+    var objects = this.retrieveObjects(references);
 
     self.iterActivityFieldsWithReferences(activities, function(args) {
       if (!objects) {
@@ -128,7 +128,7 @@ StreamBackend.prototype = {
   enrichActivity: function(activity) {
     var self = this;
     var references = this.collectReferences([activity]);
-    var objects = this.retreiveObjects(references);
+    var objects = this.retrieveObjects(references);
 
     self.iterActivityFieldsWithReferences([activity], function(args) {
       if (!objects) {
